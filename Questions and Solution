@@ -1,0 +1,177 @@
+Sales Performance Analysis: -
+1)Total Quantity sold for each product category?
+SELECT sum(qty) as total_qty_sold
+FROM balanced_tree.sales;
+45216
+
+2)Total Revenue generated for each product category? (Before discount)
+select sum(balanced_tree.sales.qty*balanced_tree.sales.price) as revenue, balanced_tree.product_details.category_name
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+group by balanced_tree.product_details.category_name;
+575333	Womens
+714120	Mens
+
+3)Total Revenue generated for each product category? (After discount)
+select sum(balanced_tree.sales.qty*balanced_tree.sales.price*(balanced_tree.sales.discount/100)) as revenue, balanced_tree.product_details.category_name
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+group by balanced_tree.product_details.category_name;
+69621.4300	Womens
+86607.7100	Mens
+
+4) Total discount amount for all as well as each product?
+select balanced_tree.product_details.product_name, balanced_tree.sales.discount, sum(balanced_tree.sales.discount) as total_discount
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+group by balanced_tree.product_details.product_name;
+Navy Oversized Jeans - Womens	17	15418
+White Tee Shirt - Mens	17	15487
+White Striped Socks - Mens	17	14873
+Pink Fluro Polkadot Socks - Mens	17	14946
+Cream Relaxed Jeans - Womens	21	15065
+Indigo Rain Jacket - Womens	21	15283
+Blue Polo Shirt - Mens	21	15553
+Navy Solid Socks - Mens	21	15646
+Black Straight Jeans - Womens	21	15257
+Khaki Suit Jacket - Womens	21	14669
+Grey Fashion Jacket - Womens	23	15500
+Teal Button Up Shirt - Mens	4	15003
+
+5)Transactions split between member and non-member purchases?
+select(select sum(balanced_tree.sales.qty*balanced_tree.sales.price) as revenue_of_womens
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+where member_1 = 'f') as revenue_of_womens ,sum(balanced_tree.sales.qty*balanced_tree.sales.price) as revenue_of_mens
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+where member_1 = 't';
+
+revenue_of_womens | revenue_of_mens
+512469 |	776984
+
+Product Analysis: -
+1)top 3 selling products by qty and by revenue before discount?
+select sum(balanced_tree.sales.qty * balanced_tree.sales.price) as revenue, sum(balanced_tree.sales.qty) as total_qty, balanced_tree.product_details.product_name
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+group by 3
+order by 1 desc
+limit 3;
+
+217683	3819	Blue Polo Shirt - Mens
+209304	3876	Grey Fashion Jacket - Womens
+152000	3800	White Tee Shirt - Mens
+
+2)What is the top selling product for each segment?
+select sum(balanced_tree.sales.qty * balanced_tree.sales.price) as revenue, sum(balanced_tree.sales.qty) as total_qty, balanced_tree.product_details.product_name, balanced_tree.product_details.segment_name
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+group by balanced_tree.product_details.segment_name;
+
+208350	11349	 Navy Oversized Jeans - Womens	Jeans
+406143	11265	 White Tee Shirt - Mens	Shirt
+307977	11217	 White Striped Socks - Mens	Socks
+366983	11385	 Indigo Rain Jacket - Womens	Jacket
+
+3)top 3 selling products by qty and by revenue after discount?
+select sum(balanced_tree.sales.qty * balanced_tree.sales.price * (balanced_tree.sales.discount/100)) as revenue, sum(balanced_tree.sales.qty) as total_qty, balanced_tree.product_details.product_name
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+group by 3
+order by 1 desc
+limit 3; 
+
+26819.0700	3819	Blue Polo Shirt - Mens
+25391.8800	3876	Grey Fashion Jacket - Womens
+18377.6000	3800	White Tee Shirt - Mens
+
+4)top 3 selling products by quantity?
+select balanced_tree.product_details.product_name, sum(balanced_tree.sales.qty) as total_qty
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+group by 1
+order by 2 desc
+limit 3;
+
+Grey Fashion Jacket - Womens	3876
+Navy Oversized Jeans - Womens	3856
+Blue Polo Shirt - Mens	      3819
+
+5)what is the total quantity, revenue and discount for each category?
+select sum(balanced_tree.sales.qty) as total_qty, sum(balanced_tree.sales.qty * balanced_tree.sales.price) as revenue, balanced_tree.sales.discount, balanced_tree.product_details.category_name
+from balanced_tree.sales
+join balanced_tree.product_details
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
+group by balanced_tree.product_details.category_name;
+
+22734	575333	17	Womens
+22482	714120	17	Mens
+
+6)how many unique transactions were there?
+select count(distinct(txn_id)) as unique_transaction_id
+from balanced_tree.sales;
+2500
+
+7)what was the total discount amount for all products?
+select sum((qty*price)*(discount/100)) as total_discount
+from balanced_tree.sales;
+156229.1400
+
+8)Revenue generated in each segment for each month?
+with joined_balance as (select balanced_tree.sales.qty, balanced_tree.sales.price, balanced_tree.product_details.segment_name , month(balanced_tree.sales.start_txn_time) as mon
+from balanced_tree.product_details
+join balanced_tree.sales
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id)
+select mon, segment_name, sum(qty*price) as revenue
+from joined_balance
+group by 1, 2
+order by 2,1 asc;
+1	Jacket	121650
+2	Jacket	121179
+3	Jacket	124154
+1	Jeans	68777
+2	Jeans	67130
+3	Jeans	72443
+1	Shirt	131638
+2	Shirt	132987
+3	Shirt	141518
+1	Socks	98607
+2	Socks	100258
+3	Socks	109112
+
+9)Revenue generated in each segment for each month convert (numerical months into object months for (1= Jan)?
+with joined_balance as (select balanced_tree.sales.qty, balanced_tree.sales.price, balanced_tree.product_details.segment_name , 
+Case 
+when month(balanced_tree.sales.start_txn_time) = 1 then "Jan"
+    When month(balanced_tree.sales.start_txn_time) = 2 then "Feb"
+    When month(balanced_tree.sales.start_txn_time) = 3 then "Mar"
+End as mon
+from balanced_tree.product_details
+join balanced_tree.sales
+on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id)
+select mon, segment_name, sum(qty*price) as revenue
+from joined_balance
+group by 1, 2
+order by 2,1 asc;
+Feb	Jacket	121179
+Jan	Jacket	121650
+Mar	Jacket	124154
+Feb	Jeans	67130
+Jan	Jeans	68777
+Mar	Jeans	72443
+Feb	Shirt	132987
+Jan	Shirt	131638
+Mar	Shirt	141518
+Feb	Socks	100258
+Jan	Socks	98607
+Mar	Socks	109112
