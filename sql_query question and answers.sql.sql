@@ -52,7 +52,7 @@ on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
 group by balanced_tree.product_details.segment_name;
 
 #3)top 3 selling products by qty and by revenue after discount?
-select sum(balanced_tree.sales.qty * balanced_tree.sales.price * (balanced_tree.sales.discount/100)) as revenue, sum(balanced_tree.sales.qty) as total_qty, balanced_tree.product_details.product_name
+select round(sum(balanced_tree.sales.qty * balanced_tree.sales.price * ((100 - balanced_tree.sales.discount)/100)),2) as revenue, sum(balanced_tree.sales.qty) as total_qty, balanced_tree.product_details.product_name
 from balanced_tree.sales
 join balanced_tree.product_details
 on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
