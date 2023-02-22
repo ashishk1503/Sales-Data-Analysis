@@ -14,13 +14,13 @@ group by balanced_tree.product_details.category_name;
 714120	Mens
 
 3)Total Revenue generated for each product category? (After discount)
-select sum(balanced_tree.sales.qty*balanced_tree.sales.price*(balanced_tree.sales.discount/100)) as revenue, balanced_tree.product_details.category_name
+select round(sum(balanced_tree.sales.qty*balanced_tree.sales.price*((100 - balanced_tree.sales.discount) /100)),2) as revenue, balanced_tree.product_details.category_name
 from balanced_tree.sales
 join balanced_tree.product_details
 on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
 group by balanced_tree.product_details.category_name;
-69621.4300	Womens
-86607.7100	Mens
+505711.57	Womens
+627512.29	Mens
 
 4) Total discount amount for all as well as each product?
 select balanced_tree.product_details.product_name, balanced_tree.sales.discount, sum(balanced_tree.sales.discount) as total_discount
