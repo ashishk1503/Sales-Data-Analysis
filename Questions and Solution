@@ -82,17 +82,17 @@ group by balanced_tree.product_details.segment_name;
 366983	11385	 Indigo Rain Jacket - Womens	Jacket
 
 3)top 3 selling products by qty and by revenue after discount?
-select sum(balanced_tree.sales.qty * balanced_tree.sales.price * (balanced_tree.sales.discount/100)) as revenue, sum(balanced_tree.sales.qty) as total_qty, balanced_tree.product_details.product_name
+select round(sum(balanced_tree.sales.qty * balanced_tree.sales.price * ((100 - balanced_tree.sales.discount)/100)),2) as revenue, sum(balanced_tree.sales.qty) as total_qty, balanced_tree.product_details.product_name
 from balanced_tree.sales
 join balanced_tree.product_details
 on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
 group by 3
 order by 1 desc
-limit 3; 
+limit 3;
 
-26819.0700	3819	Blue Polo Shirt - Mens
-25391.8800	3876	Grey Fashion Jacket - Womens
-18377.6000	3800	White Tee Shirt - Mens
+190863.93	3819	Blue Polo Shirt - Mens
+183912.12	3876	Grey Fashion Jacket - Womens
+133622.40	3800	White Tee Shirt - Mens
 
 4)top 3 selling products by quantity?
 select balanced_tree.product_details.product_name, sum(balanced_tree.sales.qty) as total_qty
