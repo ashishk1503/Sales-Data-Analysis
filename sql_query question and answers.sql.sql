@@ -10,7 +10,7 @@ on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
 group by balanced_tree.product_details.category_name;
 
 #3)Total Revenue generated for each product category? (After discount)
-select sum(balanced_tree.sales.qty*balanced_tree.sales.price*(balanced_tree.sales.discount/100)) as revenue, balanced_tree.product_details.category_name
+select round(sum(balanced_tree.sales.qty*balanced_tree.sales.price*((100 - balanced_tree.sales.discount) /100)),2) as revenue, balanced_tree.product_details.category_name
 from balanced_tree.sales
 join balanced_tree.product_details
 on balanced_tree.sales.prod_id = balanced_tree.product_details.product_id
